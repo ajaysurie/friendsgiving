@@ -179,3 +179,15 @@ export async function updateGalleryPhoto(id: string, updates: Partial<GalleryPho
     throw new Error('Failed to update gallery photo');
   }
 }
+
+export async function deleteGalleryPhoto(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('gallery_photos')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting gallery photo:', error);
+    throw new Error('Failed to delete gallery photo');
+  }
+}

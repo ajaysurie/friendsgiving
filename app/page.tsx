@@ -221,7 +221,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="py-8 text-center">
           <p className="text-thanksgiving-cranberry/60 text-sm">
-            Made with ❤️ for FriendsGiving 2024
+            Made with &lt;3 for Friends Giving 2025
           </p>
         </footer>
       </div>

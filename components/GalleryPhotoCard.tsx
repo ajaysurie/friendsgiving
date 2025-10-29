@@ -11,6 +11,7 @@ interface GalleryPhotoCardProps {
 
 export default function GalleryPhotoCard({ photo, onUpdate }: GalleryPhotoCardProps) {
   const [thanksgivingifying, setThanksgivingifying] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
 
   const handleThanksgivingify = async () => {
@@ -24,6 +25,22 @@ export default function GalleryPhotoCard({ photo, onUpdate }: GalleryPhotoCardPr
       console.error("Failed to thanksgiving-ify:", error);
     } finally {
       setThanksgivingifying(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this photo?")) return;
+
+    setDeleting(true);
+    try {
+      await fetch(`/api/gallery/${photo.id}`, {
+        method: "DELETE",
+      });
+      onUpdate();
+    } catch (error) {
+      console.error("Failed to delete photo:", error);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -74,29 +91,39 @@ export default function GalleryPhotoCard({ photo, onUpdate }: GalleryPhotoCardPr
           {photo.personName}
         </p>
 
-        {!hasThanksgivingVersion ? (
+        <div className="space-y-2">
+          {!hasThanksgivingVersion ? (
+            <button
+              onClick={handleThanksgivingify}
+              disabled={thanksgivingifying}
+              className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-thanksgiving-orange to-thanksgiving-pumpkin text-white font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+            >
+              {thanksgivingifying ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="animate-spin">🦃</span>
+                  Thanksgiving-ifying...
+                </span>
+              ) : (
+                "Thanksgiving-ify! 🎃"
+              )}
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowComparison(!showComparison)}
+              className="w-full px-4 py-3 rounded-2xl border-2 border-thanksgiving-orange text-thanksgiving-orange font-semibold hover:bg-thanksgiving-peach transition-colors"
+            >
+              {showComparison ? "Show Result" : "Show Before/After"}
+            </button>
+          )}
+
           <button
-            onClick={handleThanksgivingify}
-            disabled={thanksgivingifying}
-            className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-thanksgiving-orange to-thanksgiving-pumpkin text-white font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="w-full px-4 py-2 rounded-2xl border-2 border-thanksgiving-red/30 text-thanksgiving-red font-semibold hover:bg-thanksgiving-red hover:text-white transition-all disabled:opacity-50"
           >
-            {thanksgivingifying ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="animate-spin">🦃</span>
-                Thanksgiving-ifying...
-              </span>
-            ) : (
-              "Thanksgiving-ify! 🎃"
-            )}
+            {deleting ? "Deleting..." : "Delete Photo"}
           </button>
-        ) : (
-          <button
-            onClick={() => setShowComparison(!showComparison)}
-            className="w-full px-4 py-3 rounded-2xl border-2 border-thanksgiving-orange text-thanksgiving-orange font-semibold hover:bg-thanksgiving-peach transition-colors"
-          >
-            {showComparison ? "Show Result" : "Show Before/After"}
-          </button>
-        )}
+        </div>
       </div>
     </div>
   );
