@@ -13,11 +13,11 @@ if (process.env.KV_REST_API_URL) {
 export async function getAllDishes(): Promise<Dish[]> {
   const dishes = await kv.hgetall("dishes");
   if (!dishes) return [];
-  return Object.values(dishes).sort((a, b) => b.createdAt - a.createdAt);
+  return Object.values(dishes as Record<string, Dish>).sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export async function getDish(id: string): Promise<Dish | null> {
-  return await kv.hget("dishes", id);
+  return (await kv.hget("dishes", id)) as Dish | null;
 }
 
 export async function createDish(dish: Dish): Promise<void> {
@@ -38,11 +38,11 @@ export async function deleteDish(id: string): Promise<void> {
 export async function getAllGalleryPhotos(): Promise<GalleryPhoto[]> {
   const photos = await kv.hgetall("gallery");
   if (!photos) return [];
-  return Object.values(photos).sort((a, b) => b.createdAt - a.createdAt);
+  return Object.values(photos as Record<string, GalleryPhoto>).sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export async function getGalleryPhoto(id: string): Promise<GalleryPhoto | null> {
-  return await kv.hget("gallery", id);
+  return (await kv.hget("gallery", id)) as GalleryPhoto | null;
 }
 
 export async function createGalleryPhoto(photo: GalleryPhoto): Promise<void> {
