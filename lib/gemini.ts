@@ -61,7 +61,7 @@ export async function thanksgivingifyImage(imageUrl: string): Promise<string> {
     // Use Gemini 2.5 Flash image generation model (nanobanana)
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-image" });
 
-    const prompt = `Transform this image into a festive Thanksgiving scene. Add autumn leaves, warm fall colors (oranges, reds, yellows), pumpkins, turkeys, and a cozy holiday atmosphere while keeping the people recognizable.`;
+    const prompt = `Transform this image into a festive Thanksgiving scene. IMPORTANT: Keep all people in the image EXACTLY as they appear - do not change their faces, bodies, clothing, or positions at all. Only modify the background and surroundings by adding autumn leaves, warm fall colors (oranges, reds, yellows), pumpkins, turkeys, and a cozy holiday atmosphere around them. The people must remain completely unchanged and identical to the original image.`;
 
     // For image transformation, we'd need to pass the original image
     // This is a simplified version - may need to fetch and convert the image
