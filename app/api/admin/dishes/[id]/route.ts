@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDish, updateDish, deleteDish } from "@/lib/kv";
+import { getDish, updateDish, deleteDish } from "@/lib/db";
 import { generateDishImage } from "@/lib/gemini";
 
 export async function PUT(

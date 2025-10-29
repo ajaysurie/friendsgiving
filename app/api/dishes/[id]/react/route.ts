@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDish, updateDish } from "@/lib/kv";
+import { getDish, updateDish } from "@/lib/db";
 
 export async function POST(
   request: NextRequest,

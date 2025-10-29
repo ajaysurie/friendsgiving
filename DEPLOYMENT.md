@@ -9,86 +9,110 @@
 npm i -g vercel
 
 # Deploy from the project directory
-vercel
+vercel --prod --yes
 ```
 
-Follow the prompts:
-- Set up and deploy? **Yes**
-- Which scope? (select your account)
-- Link to existing project? **No**
-- Project name: **friendsgiving** (or your preference)
-- Directory: **./**
-- Override settings? **No**
+Your app will be deployed to Vercel!
 
-### 2. Set Up Vercel KV (Redis Database)
+### 2. Set Up Supabase Database
+
+1. Go to your [Supabase Dashboard](https://app.supabase.com)
+2. Create a new project or select an existing one
+3. Go to **SQL Editor** in the left sidebar
+4. Copy the contents of `supabase-schema.sql` from this repo
+5. Paste and run the SQL to create the tables
+6. Go to **Project Settings** → **API**
+7. Copy the following values:
+   - **Project URL** (e.g., https://xxxxx.supabase.co)
+   - **anon public** key
+
+### 3. Set Up Environment Variables in Vercel
 
 1. Go to your project dashboard on [vercel.com](https://vercel.com)
-2. Click on the **Storage** tab
-3. Click **Create Database** → **KV**
-4. Name it `friendsgiving-kv` (or your preference)
-5. Click **Create**
-6. The environment variables will be automatically added to your project
+2. Click **Settings** → **Environment Variables**
+3. Add the following variables:
 
-### 3. Set Up Vercel Blob (Image Storage)
+   **NEXT_PUBLIC_SUPABASE_URL**
+   - Value: Your Supabase Project URL
+   - Environment: Production, Preview, Development (select all)
 
-1. In your project dashboard, go to **Storage** tab
+   **NEXT_PUBLIC_SUPABASE_ANON_KEY**
+   - Value: Your Supabase anon public key
+   - Environment: Production, Preview, Development (select all)
+
+   **GOOGLE_AI_API_KEY**
+   - Value: `AIzaSyDEGJZYuzn4tv9WTUkHDIWYW-_Uyq3yrlU`
+   - Environment: Production, Preview, Development (select all)
+
+4. Click **Save** for each
+
+### 4. Set Up Vercel Blob (Image Storage)
+
+1. In your Vercel project dashboard, go to **Storage** tab
 2. Click **Create Database** → **Blob**
 3. Name it `friendsgiving-blob`
 4. Click **Create**
-5. The environment variables will be automatically added to your project
+5. The BLOB_READ_WRITE_TOKEN environment variable will be automatically added
 
-### 4. Add Google Gemini API Key
-
-1. In your project dashboard, go to **Settings** → **Environment Variables**
-2. Add a new variable:
-   - **Name**: `GOOGLE_AI_API_KEY`
-   - **Value**: `AIzaSyDEGJZYuzn4tv9WTUkHDIWYW-_Uyq3yrlU`
-   - **Environment**: Production, Preview, Development (select all)
-3. Click **Save**
-
-### 5. Deploy Production
+### 5. Redeploy
 
 ```bash
-vercel --prod
+vercel --prod --yes
 ```
 
 Your app will be live at `https://your-project.vercel.app`!
 
+## Local Development
+
+1. Copy `.env.example` to `.env.local`
+2. Add your Supabase credentials:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   GOOGLE_AI_API_KEY=your_google_ai_key
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
 ## Resetting the Database
 
-### Option 1: Using Vercel Dashboard (Easiest)
+### Option 1: Using Supabase Dashboard (Easiest)
 
-1. Go to your project on [vercel.com](https://vercel.com)
-2. Click **Storage** tab
-3. Click on your KV database
-4. Click **Data** tab
-5. You can delete individual keys or use the **Flush Database** button to delete everything
+1. Go to your Supabase project
+2. Click **SQL Editor**
+3. Run these commands:
+   ```sql
+   DELETE FROM gallery_photos;
+   DELETE FROM dishes;
+   ```
 
-### Option 2: Using Vercel CLI
+### Option 2: Drop and Recreate Tables
 
-```bash
-# List all keys
-vercel env pull .env.production
-npx @vercel/kv-cli --url $KV_REST_API_URL scan 0
+1. Go to **SQL Editor** in Supabase
+2. Run:
+   ```sql
+   DROP TABLE IF EXISTS gallery_photos;
+   DROP TABLE IF EXISTS dishes;
+   ```
+3. Then re-run the `supabase-schema.sql` script
 
-# Delete all data (use with caution!)
-npx @vercel/kv-cli --url $KV_REST_API_URL flushdb
+### Option 3: Filter by Year
+
+If you want to keep old data and just start fresh for a new year:
+```sql
+DELETE FROM dishes WHERE year = 2025;
+DELETE FROM gallery_photos WHERE year = 2025;
 ```
 
-### Option 3: Create a Fresh Database
-
-1. Go to **Storage** tab in Vercel dashboard
-2. Delete the old KV database
-3. Create a new one
-4. Redeploy your app
-
-**Note:** Resetting is instant and completely safe. All dishes, claims, and photos will be cleared. The Blob storage (images) can be managed separately from the Blob dashboard if needed.
+**Note:** Resetting is instant. To also delete images from Vercel Blob, go to the Blob dashboard in Vercel.
 
 ## For Next Year
 
 When you want to reset for FriendsGiving 2026:
-1. Simply flush the KV database (Option 1 above)
+1. Simply delete data from the current year (see Option 3 above)
 2. Optionally delete old images from Blob storage to save space
 3. That's it! The app is ready for the new year.
 
-The `year` field is already built into the data models if you want to filter by year in the future.
+The `year` field is already built into the data models for future multi-year support.

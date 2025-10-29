@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createDish } from "@/lib/kv";
+import { createDish } from "@/lib/db";
 import { generateDishImage } from "@/lib/gemini";
 import { Dish } from "@/types";
 

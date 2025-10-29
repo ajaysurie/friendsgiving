@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllGalleryPhotos } from "@/lib/kv";
+import { getAllGalleryPhotos } from "@/lib/db";
 
 export async function GET() {
   try {

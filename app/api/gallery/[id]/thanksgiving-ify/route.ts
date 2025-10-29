@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getGalleryPhoto, updateGalleryPhoto } from "@/lib/kv";
+import { getGalleryPhoto, updateGalleryPhoto } from "@/lib/db";
 import { thanksgivingifyImage } from "@/lib/gemini";
 
 export async function POST(

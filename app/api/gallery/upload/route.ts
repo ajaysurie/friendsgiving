@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createGalleryPhoto } from "@/lib/kv";
+import { createGalleryPhoto } from "@/lib/db";
 import { GalleryPhoto } from "@/types";
 
 // Use local mock Blob if Vercel Blob is not configured
