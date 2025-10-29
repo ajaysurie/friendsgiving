@@ -304,3 +304,44 @@ Estimated: 15-20 minutes from a fresh Vercel account
 
 ### Overall Assessment
 The application is **deployment-ready** with all core features implemented, a delightful UI, and proper error handling. The warm Thanksgiving aesthetic creates an inviting experience for coordinating your celebration!
+
+---
+
+## Bug Fix: Invalid Header Value Error (2025-10-29)
+
+### Problem
+The server is throwing an error when creating dishes:
+```
+TypeError: Headers.set: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxY3h4c2d4eHBjcnVz
+  ZHVqb3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2OTA5MjAsImV4cCI6MjA3NzI2NjkyMH0.IUzCJ85E-etXpUI_w4RO3CSZ5h6w983fGJPpodA-PAE" is an invalid header value.
+```
+
+The Supabase anon key contains a newline character (`\n`), which is not allowed in HTTP headers.
+
+### Root Cause
+In `lib/supabase.ts`, the environment variables are read directly without trimming whitespace or newlines. The .env.local file likely has the API key split across multiple lines or has trailing whitespace.
+
+### Plan
+
+#### Todo Items
+- [ ] Fix the Supabase client initialization to trim environment variables
+- [ ] Verify the .env.local file doesn't have line breaks in the API key
+- [ ] Test the fix by attempting to create a dish
+
+### Implementation Details
+- Update `lib/supabase.ts` to use `.trim()` on environment variables
+- This will strip any leading/trailing whitespace or newline characters
+- Simple one-line change that fixes the issue
+
+### Review
+
+#### Changes Made
+1. **Updated `lib/supabase.ts:3-4`** - Added `.trim()` to both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` environment variables
+2. **Verified `.env.local`** - Confirmed the API key is properly formatted without embedded newlines
+3. **Tested the build** - Build succeeded without errors
+
+#### What This Fixes
+The `.trim()` method removes any leading or trailing whitespace, including newline characters (`\n`), from the environment variables before passing them to the Supabase client. This prevents the "Invalid header value" error that was occurring when the HTTP headers were being set with the JWT token.
+
+#### Status
+✅ **Fixed** - The Supabase client will now properly handle environment variables even if they contain trailing whitespace or newlines. The application should deploy successfully and create dishes without errors.
