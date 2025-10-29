@@ -58,14 +58,28 @@ export async function thanksgivingifyImage(imageUrl: string): Promise<string> {
 
   try {
     const genAI = getGenAI();
-    // Use Gemini 2.5 Flash image generation model (nanobanana)
+    // Use Gemini 2.5 Flash image generation model
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-image" });
+
+    // Fetch the original image
+    const imageResponse = await fetch(imageUrl);
+    const imageBuffer = await imageResponse.arrayBuffer();
+    const imageBase64 = Buffer.from(imageBuffer).toString('base64');
+    const mimeType = imageResponse.headers.get('content-type') || 'image/jpeg';
 
     const prompt = `Transform this image into a festive Thanksgiving scene. IMPORTANT: Keep all people in the image EXACTLY as they appear - do not change their faces, bodies, clothing, or positions at all. Only modify the background and surroundings by adding autumn leaves, warm fall colors (oranges, reds, yellows), pumpkins, turkeys, and a cozy holiday atmosphere around them. The people must remain completely unchanged and identical to the original image.`;
 
-    // For image transformation, we'd need to pass the original image
-    // This is a simplified version - may need to fetch and convert the image
-    const result = await model.generateContent(prompt);
+    // Pass the image along with the prompt
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: imageBase64,
+          mimeType: mimeType
+        }
+      }
+    ]);
+
     const response = result.response;
 
     // Check for generated image in response
@@ -73,9 +87,9 @@ export async function thanksgivingifyImage(imageUrl: string): Promise<string> {
     if (candidates && candidates[0]?.content?.parts) {
       const imagePart = candidates[0].content.parts.find((part: any) => part.inlineData);
       if (imagePart?.inlineData) {
-        const mimeType = imagePart.inlineData.mimeType || 'image/png';
+        const outputMimeType = imagePart.inlineData.mimeType || 'image/png';
         const data = imagePart.inlineData.data;
-        return `data:${mimeType};base64,${data}`;
+        return `data:${outputMimeType};base64,${data}`;
       }
     }
 
