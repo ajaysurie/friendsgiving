@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 export default function Countdown() {
-  const targetDate = new Date("2025-11-16T18:00:00").getTime();
+  const targetDate = new Date("2025-11-16T14:00:00").getTime();
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -50,7 +50,7 @@ export default function Countdown() {
           {isPast ? "Friendsgiving has passed!" : "Countdown to Friendsgiving"}
         </h3>
         <p className="text-thanksgiving-orange font-semibold text-lg">
-          November 16, 2025 at 6:00 PM
+          November 16, 2025 at 2:00 PM
         </p>
       </div>
 
