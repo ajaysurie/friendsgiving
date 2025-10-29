@@ -7,6 +7,7 @@ import AddDishForm from "@/components/AddDishForm";
 import GalleryUpload from "@/components/GalleryUpload";
 import GalleryPhotoCard from "@/components/GalleryPhotoCard";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Countdown from "@/components/Countdown";
 
 export default function Home() {
   const [dishes, setDishes] = useState<Dish[]>([]);
@@ -77,6 +78,11 @@ export default function Home() {
             </p>
           </div>
         </header>
+
+        {/* Countdown */}
+        <div className="max-w-4xl mx-auto px-4 mb-12">
+          <Countdown />
+        </div>
 
         {/* Main Content */}
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
