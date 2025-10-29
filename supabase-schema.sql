@@ -18,9 +18,9 @@ CREATE TABLE IF NOT EXISTS dishes (
 -- Gallery photos table
 CREATE TABLE IF NOT EXISTS gallery_photos (
   id TEXT PRIMARY KEY,
-  original_url TEXT NOT NULL,
-  thanksgiving_url TEXT,
-  uploaded_by TEXT NOT NULL,
+  person_name TEXT NOT NULL,
+  original_photo_url TEXT NOT NULL,
+  thanksgiving_photo_url TEXT,
   created_at BIGINT NOT NULL,
   year INTEGER
 );

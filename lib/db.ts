@@ -115,9 +115,9 @@ export async function getAllGalleryPhotos(): Promise<GalleryPhoto[]> {
 
   return (data || []).map(row => ({
     id: row.id,
-    originalUrl: row.original_url,
-    thanksgivingUrl: row.thanksgiving_url,
-    uploadedBy: row.uploaded_by,
+    personName: row.person_name,
+    originalPhotoUrl: row.original_photo_url,
+    thanksgivingPhotoUrl: row.thanksgiving_photo_url,
     createdAt: row.created_at,
     year: row.year,
   }));
@@ -134,9 +134,9 @@ export async function getGalleryPhoto(id: string): Promise<GalleryPhoto | null> 
 
   return {
     id: data.id,
-    originalUrl: data.original_url,
-    thanksgivingUrl: data.thanksgiving_url,
-    uploadedBy: data.uploaded_by,
+    personName: data.person_name,
+    originalPhotoUrl: data.original_photo_url,
+    thanksgivingPhotoUrl: data.thanksgiving_photo_url,
     createdAt: data.created_at,
     year: data.year,
   };
@@ -147,9 +147,9 @@ export async function createGalleryPhoto(photo: GalleryPhoto): Promise<void> {
     .from('gallery_photos')
     .insert({
       id: photo.id,
-      original_url: photo.originalUrl,
-      thanksgiving_url: photo.thanksgivingUrl,
-      uploaded_by: photo.uploadedBy,
+      person_name: photo.personName,
+      original_photo_url: photo.originalPhotoUrl,
+      thanksgiving_photo_url: photo.thanksgivingPhotoUrl,
       created_at: photo.createdAt,
       year: photo.year,
     });
@@ -163,9 +163,9 @@ export async function createGalleryPhoto(photo: GalleryPhoto): Promise<void> {
 export async function updateGalleryPhoto(id: string, updates: Partial<GalleryPhoto>): Promise<void> {
   const dbUpdates: any = {};
 
-  if (updates.originalUrl !== undefined) dbUpdates.original_url = updates.originalUrl;
-  if (updates.thanksgivingUrl !== undefined) dbUpdates.thanksgiving_url = updates.thanksgivingUrl;
-  if (updates.uploadedBy !== undefined) dbUpdates.uploaded_by = updates.uploadedBy;
+  if (updates.personName !== undefined) dbUpdates.person_name = updates.personName;
+  if (updates.originalPhotoUrl !== undefined) dbUpdates.original_photo_url = updates.originalPhotoUrl;
+  if (updates.thanksgivingPhotoUrl !== undefined) dbUpdates.thanksgiving_photo_url = updates.thanksgivingPhotoUrl;
   if (updates.createdAt !== undefined) dbUpdates.created_at = updates.createdAt;
   if (updates.year !== undefined) dbUpdates.year = updates.year;
 
