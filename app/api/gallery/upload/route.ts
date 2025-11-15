@@ -27,6 +27,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      return NextResponse.json(
+        { error: "File must be an image" },
+        { status: 400 }
+      );
+    }
+
+    // Validate file size (max 10MB after compression)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: "File too large. Please use a smaller image." },
+        { status: 400 }
+      );
+    }
+
     // Upload to Vercel Blob
     const blob = await put(file.name, file, {
       access: "public",
