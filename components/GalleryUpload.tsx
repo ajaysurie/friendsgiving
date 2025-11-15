@@ -13,12 +13,81 @@ export default function GalleryUpload({ onUploadComplete }: GalleryUploadProps) 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [compressing, setCompressing] = useState(false);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Compress image on client side before upload
+  const compressImage = async (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = document.createElement("img");
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            reject(new Error("Failed to get canvas context"));
+            return;
+          }
+
+          // Calculate new dimensions (max 1920px on longest side)
+          const MAX_SIZE = 1920;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height && width > MAX_SIZE) {
+            height = (height * MAX_SIZE) / width;
+            width = MAX_SIZE;
+          } else if (height > MAX_SIZE) {
+            width = (width * MAX_SIZE) / height;
+            height = MAX_SIZE;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          // Draw and compress
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error("Failed to compress image"));
+                return;
+              }
+              // Create new file with original name
+              const compressedFile = new File([blob], file.name, {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            },
+            "image/jpeg",
+            0.85 // 85% quality
+          );
+        };
+        img.onerror = () => reject(new Error("Failed to load image"));
+      };
+      reader.onerror = () => reject(new Error("Failed to read file"));
+    });
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      setError("");
+      setCompressing(true);
+      try {
+        // Compress the image before setting it
+        const compressedFile = await compressImage(file);
+        setSelectedFile(compressedFile);
+        setPreviewUrl(URL.createObjectURL(compressedFile));
+      } catch (err: any) {
+        setError(err.message || "Failed to process image");
+      } finally {
+        setCompressing(false);
+      }
     }
   };
 
@@ -44,7 +113,8 @@ export default function GalleryUpload({ onUploadComplete }: GalleryUploadProps) 
       });
 
       if (!response.ok) {
-        throw new Error("Failed to upload photo");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Upload failed (${response.status})`);
       }
 
       // Reset form
@@ -53,7 +123,7 @@ export default function GalleryUpload({ onUploadComplete }: GalleryUploadProps) 
       setPreviewUrl(null);
       onUploadComplete();
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Failed to upload photo");
     } finally {
       setUploading(false);
     }
@@ -92,7 +162,14 @@ export default function GalleryUpload({ onUploadComplete }: GalleryUploadProps) 
               id="file-upload"
             />
             <label htmlFor="file-upload" className="cursor-pointer">
-              {previewUrl ? (
+              {compressing ? (
+                <div className="py-8">
+                  <div className="text-4xl mb-2 animate-pulse">⏳</div>
+                  <p className="text-thanksgiving-cranberry">
+                    Optimizing image...
+                  </p>
+                </div>
+              ) : previewUrl ? (
                 <div className="relative w-full h-48 mb-2">
                   <Image
                     src={previewUrl}
@@ -117,10 +194,10 @@ export default function GalleryUpload({ onUploadComplete }: GalleryUploadProps) 
 
         <button
           type="submit"
-          disabled={uploading || !selectedFile || !personName.trim()}
+          disabled={uploading || compressing || !selectedFile || !personName.trim()}
           className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-thanksgiving-orange to-thanksgiving-pumpkin text-white font-semibold hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {uploading ? "Uploading..." : "Upload Photo"}
+          {compressing ? "Optimizing..." : uploading ? "Uploading..." : "Upload Photo"}
         </button>
       </form>
     </div>
